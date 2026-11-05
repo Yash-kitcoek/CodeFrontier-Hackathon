@@ -1,0 +1,14 @@
+NO LICENSE HAS BEEN SELECTED.
+
+The project owner must choose a licence. Until one is added, the default
+is "all rights reserved": others may not legally copy, modify or reuse the code.
+
+Common options:
+- MIT: very permissive; keep copyright notice.
+- Apache-2.0: permissive, with an explicit patent grant.
+- GPL-3.0: copyleft; derivative works must also be GPL.
+- AGPL-3.0: copyleft that also covers network/SaaS use.
+- Proprietary / none: keep it private or source-available.
+
+Pick one at https://choosealicense.com, replace this file with the full
+licence text, and update the badge in README.md.
