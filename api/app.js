@@ -1,5 +1,15 @@
-import { put, list, get, del } from '@vercel/blob';
 import crypto from 'node:crypto';
+
+let blob = null;
+if (globalThis.__localBlob) {
+  blob = globalThis.__localBlob;
+} else {
+  try {
+    blob = await import('@vercel/blob');
+  } catch (e) {
+    // Graceful fallback when running in environment without @vercel/blob installed
+  }
+}
 
 const P = 'db/state-';
 const NL = String.fromCharCode(10);
@@ -99,20 +109,20 @@ const byName = function(a, c) {
   return a.pathname < c.pathname ? 1 : -1;
 };
 
-const hasBlobToken = () => {
-  return !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN);
+const hasBlob = () => {
+  return blob && (globalThis.__localBlob || process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN);
 };
 
 async function loadDb() {
-  if (!hasBlobToken()) {
+  if (!hasBlob()) {
     if (!inMemoryDb) inMemoryDb = initialDemoState();
     return inMemoryDb;
   }
   try {
-    const l = await list({ prefix: P });
-    const b = l.blobs.slice().sort(byName);
+    const l = await blob.list({ prefix: P });
+    const b = (l.blobs || []).slice().sort(byName);
     if (!b.length) return initialDemoState();
-    const r = await get(b[0].pathname, { access: 'private', useCache: false });
+    const r = await blob.get(b[0].pathname, { access: 'private', useCache: false });
     if (!r || r.statusCode !== 200) {
       if (!inMemoryDb) inMemoryDb = initialDemoState();
       return inMemoryDb;
@@ -125,18 +135,18 @@ async function loadDb() {
 }
 
 async function saveDb(db) {
-  if (!hasBlobToken()) {
+  if (!hasBlob()) {
     inMemoryDb = db;
     return;
   }
   try {
     db.rev = (db.rev || 0) + 1;
     const nm = P + String(Date.now()).padStart(13, '0') + '-' + String(db.rev).padStart(6, '0') + '.json';
-    await put(nm, JSON.stringify(db), { access: 'private', addRandomSuffix: false, contentType: 'application/json' });
-    const l = await list({ prefix: P });
-    const b = l.blobs.slice().sort(byName);
+    await blob.put(nm, JSON.stringify(db), { access: 'private', addRandomSuffix: false, contentType: 'application/json' });
+    const l = await blob.list({ prefix: P });
+    const b = (l.blobs || []).slice().sort(byName);
     const o = b.slice(6).map(function(x) { return x.pathname; });
-    if (o.length) await del(o);
+    if (o.length) await blob.del(o);
   } catch (err) {
     inMemoryDb = db;
   }

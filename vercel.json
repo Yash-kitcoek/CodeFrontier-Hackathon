@@ -1,15 +1,3 @@
 {
-  "version": 2,
-  "regions": ["bom1"],
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/api/app", "destination": "/api/app.js" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" },
-    { "source": "/", "destination": "/index.html" }
-  ],
-  "functions": {
-    "api/app.js": {
-      "maxDuration": 30
-    }
-  }
+  "regions": ["bom1"]
 }
