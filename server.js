@@ -10,6 +10,8 @@ const tmpDir = path.join(root, '.local');
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(tmpDir, { recursive: true });
 
+process.env.BLOB_READ_WRITE_TOKEN = 'local-disk-token';
+
 // Local replacement for @vercel/blob (same functions, files on disk)
 fs.writeFileSync(path.join(tmpDir, 'blob.mjs'), `
 import fs from 'node:fs';import path from 'node:path';
